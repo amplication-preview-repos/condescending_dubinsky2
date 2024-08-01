@@ -1,0 +1,72 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Chatbot {
+  createdAt    DateTime      @default(now())
+  description  String?
+  id           String        @id @default(cuid())
+  interactions Interaction[]
+  name         String?
+  updatedAt    DateTime      @updatedAt
+}
+
+model Rfp {
+  content        String?
+  createdAt      DateTime       @default(now())
+  id             String         @id @default(cuid())
+  responses      Response[]
+  status         EnumRfpStatus?
+  submissionDate DateTime?
+  title          String?
+  updatedAt      DateTime       @updatedAt
+  user           User?          @relation(fields: [userId], references: [id])
+  userId         String?
+}
+
+model Interaction {
+  chatbot   Chatbot?  @relation(fields: [chatbotId], references: [id])
+  chatbotId String?
+  createdAt DateTime  @default(now())
+  id        String    @id @default(cuid())
+  message   String?
+  timestamp DateTime?
+  updatedAt DateTime  @updatedAt
+  user      User?     @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+model Response {
+  content   String?
+  createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  rfp       Rfp?     @relation(fields: [rfpId], references: [id])
+  rfpId     String?
+  updatedAt DateTime @updatedAt
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+model User {
+  createdAt    DateTime      @default(now())
+  email        String?       @unique
+  firstName    String?
+  id           String        @id @default(cuid())
+  interactions Interaction[]
+  lastName     String?
+  password     String
+  responses    Response[]
+  rfps         Rfp[]
+  roles        Json
+  updatedAt    DateTime      @updatedAt
+  username     String        @unique
+}
+
+enum EnumRfpStatus {
+  Option1
+}
